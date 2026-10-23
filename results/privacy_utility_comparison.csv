@@ -1,0 +1,7 @@
+Method,Privacy mechanism or transformation,Accuracy,Precision,Recall,F1-score,"Feature distortion, where applicable",Limitations
+Baseline Decision Tree,None (Raw identifiable features),0.6582,0.6857,0.9057,0.7805,None (0.000),High re-identification risk (27.6% unique QI signatures); susceptible to membership inference.
+Baseline Logistic Regression,"None (Raw features, linear model)",0.6582,0.7167,0.8113,0.7611,None (0.000),No privacy safeguards; weights reveal linear sensitivity to input demographics.
+Anonymized Decision Tree,"Generalization (age, Medu, Fedu, absences) & suppression (school)",0.6835,0.7333,0.8302,0.7788,Information loss via discretization,"Reduces unique signatures from 27.6% to 1.3%, but vulnerable to homogeneity/background knowledge attacks; no formal DP guarantee."
+LDP Decision Tree (eps=0.5),"Local Laplace mechanism on 'studytime' (scale=6.0, clipped [1,4])",0.6582,0.6857,0.9057,0.7805,MAE: 1.2905 (RMSE: 1.5750),Significant noise on studytime; feature-level guarantee only; aggregator is untrusted for this feature.
+LDP Decision Tree (eps=1.0),"Local Laplace mechanism on 'studytime' (scale=3.0, clipped [1,4])",0.6582,0.6857,0.9057,0.7805,MAE: 1.1030 (RMSE: 1.3880),Moderate privacy; balanced reconstruction error; protects single attribute against untrusted central server.
+LDP Decision Tree (eps=5.0),"Local Laplace mechanism on 'studytime' (scale=0.6, clipped [1,4])",0.6582,0.6857,0.9057,0.7805,MAE: 0.4520 (RMSE: 0.6295),Weak privacy protection (high epsilon allows probabilistic attribute reconstruction).

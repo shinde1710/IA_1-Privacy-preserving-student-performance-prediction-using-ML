@@ -1,0 +1,17 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Word temp files
+~$*
+
+# Raw Dataset (downloadable via script)
+data/student-mat.csv
+data/*.zip
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,24 +1,28 @@
 """
 src/baseline_model.py
 ---------------------
-Baseline Machine Learning Model training and evaluation.
+Baseline Machine Learning Model training, cross-validation, and evaluation.
 Primary model: Decision Tree Classifier (transparent, explainable for viva).
 Secondary baseline: Logistic Regression (linear reference).
+Supports:
+- Train/test single-split evaluation
+- 5-Fold Stratified Cross-Validation (mean +/- std)
+- Feature importance extraction
 """
 
 import os
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
     recall_score,
     f1_score,
-    confusion_matrix,
-    classification_report
+    confusion_matrix
 )
 
 
@@ -74,7 +78,6 @@ def evaluate_classifier(
     y_pred = model.predict(X_test)
     
     cm = confusion_matrix(y_test, y_pred)
-    # cm layout: [[TN, FP], [FN, TP]]
     tn, fp, fn, tp = cm.ravel()
     
     metrics = {
@@ -92,6 +95,55 @@ def evaluate_classifier(
     }
     
     return metrics
+
+
+def evaluate_with_cross_validation(
+    X: pd.DataFrame,
+    y: pd.Series,
+    n_splits: int = 5,
+    random_state: int = 42
+) -> pd.DataFrame:
+    """
+    Performs Stratified K-Fold Cross Validation for both Decision Tree and Logistic Regression.
+    Reports mean and standard deviation to assess baseline stability on small datasets.
+    """
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    
+    models = {
+        "Decision Tree (d=3)": DecisionTreeClassifier(max_depth=3, min_samples_leaf=5, random_state=random_state),
+        "Logistic Regression": LogisticRegression(max_iter=1000, random_state=random_state)
+    }
+    
+    cv_records = []
+    
+    for name, clf in models.items():
+        accs, precs, recs, f1s = [], [], [], []
+        
+        for fold, (tr_idx, val_idx) in enumerate(skf.split(X, y)):
+            X_tr, X_val = X.iloc[tr_idx], X.iloc[val_idx]
+            y_tr, y_val = y.iloc[tr_idx], y.iloc[val_idx]
+            
+            clf.fit(X_tr, y_tr)
+            y_pred = clf.predict(X_val)
+            
+            accs.append(accuracy_score(y_val, y_pred))
+            precs.append(precision_score(y_val, y_pred, zero_division=0))
+            recs.append(recall_score(y_val, y_pred, zero_division=0))
+            f1s.append(f1_score(y_val, y_pred, zero_division=0))
+            
+        cv_records.append({
+            "Model": name,
+            "Accuracy_Mean": float(np.mean(accs)),
+            "Accuracy_Std": float(np.std(accs)),
+            "Precision_Mean": float(np.mean(precs)),
+            "Precision_Std": float(np.std(precs)),
+            "Recall_Mean": float(np.mean(recs)),
+            "Recall_Std": float(np.std(recs)),
+            "F1_Mean": float(np.mean(f1s)),
+            "F1_Std": float(np.std(f1s))
+        })
+        
+    return pd.DataFrame(cv_records)
 
 
 def get_feature_importances(
@@ -116,13 +168,17 @@ if __name__ == "__main__":
     df = load_dataset(data_path)
     X_tr, X_te, y_tr, y_te, f_names = preprocess_student_data(df)
     
+    # Single split evaluation
     dt = train_decision_tree(X_tr, y_tr)
     metrics_dt = evaluate_classifier(dt, X_te, y_te, "Baseline Decision Tree")
-    print("Decision Tree Metrics:", metrics_dt)
+    print("Decision Tree Metrics (Single Split):", metrics_dt)
     
-    lr = train_logistic_regression(X_tr, y_tr)
-    metrics_lr = evaluate_classifier(lr, X_te, y_te, "Baseline Logistic Regression")
-    print("Logistic Regression Metrics:", metrics_lr)
+    # Cross Validation evaluation
+    y_full = (df['G3'] >= 10).astype(int)
+    X_full_raw = df.drop(columns=['G1', 'G2', 'G3'])
+    cat_cols = X_full_raw.select_dtypes(include=['object', 'category', 'string']).columns.tolist()
+    X_full_enc = pd.get_dummies(X_full_raw, columns=cat_cols, drop_first=True, dtype=int)
     
-    imp = get_feature_importances(dt, f_names)
-    print("\nTop 5 Important Features:\n", imp.head(5))
+    cv_df = evaluate_with_cross_validation(X_full_enc, y_full, n_splits=5)
+    print("\n=== 5-Fold Stratified Cross Validation Results ===")
+    print(cv_df.to_string(index=False))

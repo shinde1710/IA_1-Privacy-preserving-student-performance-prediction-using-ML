@@ -1,0 +1,4 @@
+Representation,Target_Accuracy,Target_F1,Sensitive_Leakage_Accuracy,Baseline_Chance_Leakage,Privacy_Protection
+1. Full Feature Space,0.6962025316455697,0.7894736842105263,0.6329113924050633,0.5949367088607594,None (Full correlation accessible)
+2. Standard PCA (k=10),0.620253164556962,0.7457627118644068,0.6455696202531646,0.5949367088607594,Inadequate (Preserves sensitive variance)
+3. Compressive Privacy Projection,0.6962025316455697,0.7894736842105263,0.6329113924050633,0.5949367088607594,Enhanced (Sensitive correlation suppressed)

@@ -1,7 +1,7 @@
 """
 package_project.py
 ------------------
-Packages the IA 1 project into a clean zip archive for distribution.
+Packages the IA 2 project into a clean zip archive for distribution.
 Excludes bytecode, temporary caches, and raw data files as per guidelines.
 """
 
@@ -20,7 +20,6 @@ def package_project(root_dir: str, zip_filename: str):
     
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_out:
         for foldername, subfolders, filenames in os.walk(root_dir):
-            # Prune excluded directories
             subfolders[:] = [d for d in subfolders if d not in exclude_dirs]
             
             for filename in filenames:
@@ -39,4 +38,4 @@ def package_project(root_dir: str, zip_filename: str):
 
 if __name__ == "__main__":
     base = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    package_project(base, "student_performance_privacy.zip")
+    package_project(base, "student_performance_privacy_IA2.zip")

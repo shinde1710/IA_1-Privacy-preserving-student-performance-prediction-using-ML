@@ -1,0 +1,8 @@
+Method,Privacy Mechanism or Transformation,Accuracy,Precision,Recall,F1-score,Feature Distortion,Limitations
+Baseline Decision Tree,None (Raw identifiable features),0.6582,0.6857,0.9057,0.7805,None (0.000),High re-identification vulnerability (27.6% unique QI signatures); no mathematical privacy bounds.
+Baseline Logistic Regression,"None (Raw features, linear model)",0.6582,0.7167,0.8113,0.7611,None (0.000),No privacy safeguards; weights expose linear demographic correlations.
+Anonymized Decision Tree,"Generalization (age, Medu, Fedu, absences) & suppression (school)",0.6835,0.7333,0.8302,0.7788,Discretization information loss,"Reduces unique signatures from 27.6% to 1.3%, but vulnerable to homogeneity/background knowledge attacks; no DP guarantee."
+Local DP Decision Tree (eps=0.5),"Client-side Laplace on 'studytime' (scale=6.0, clipped [1,4])",0.6582,0.6857,0.9057,0.7805,MAE: 1.2905,Substantial distortion on study time; protects single attribute against untrusted central aggregator.
+Local DP Decision Tree (eps=1.0),"Client-side Laplace on 'studytime' (scale=3.0, clipped [1,4])",0.6582,0.6857,0.9057,0.7805,MAE: 1.1030,Moderate privacy; balanced reconstruction error; protects single attribute against untrusted central server.
+Central DP Logistic Reg (eps=0.5),Output perturbation on weights via diffprivlib Laplace,0.6405,0.7071,0.7925,0.7473,Weight perturbation (Delta_w=0.0063),Requires trusted central curator; global weight noise reduces accuracy to 64.05%.
+Central DP Logistic Reg (eps=1.0),Output perturbation on weights via diffprivlib Laplace,0.6405,0.7071,0.7925,0.7473,Weight perturbation (Delta_w=0.0063),"Requires trusted central curator; formal (1.0, 0)-DP guarantee on model parameters."

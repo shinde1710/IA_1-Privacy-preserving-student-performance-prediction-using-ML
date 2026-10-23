@@ -1,4 +1,4 @@
-# Security and Privacy for Machine Learning - IA 1 Project Requirements
+# Security and Privacy for Machine Learning - IA 2 Project Requirements
 # Python >= 3.10
 
 pandas>=2.0.0
@@ -8,3 +8,5 @@ matplotlib>=3.7.0
 seaborn>=0.12.0
 python-docx>=1.1.0
 pytest>=7.4.0
+diffprivlib>=0.6.0
+setuptools>=49.0.0
